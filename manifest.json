@@ -2,7 +2,8 @@
   "manifest_version": 3,
   "name": "Fabric Notebook Renderer",
   "version": "1.1.0",
-  "description": "Renders Microsoft Fabric notebook (.py) files on GitHub as interactive notebook cards with syntax highlighting, cell-level diffs, and side-by-side comparisons.",
+  "authoe": "Bendik Knapstad",
+  "description": "Renders Fabric notebook files on GitHub as cell cards with syntax highlighting and side-by-side diffs.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
