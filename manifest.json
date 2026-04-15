@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Fabric Notebook Renderer",
+  "version": "1.1.0",
+  "description": "Renders Microsoft Fabric notebook (.py) files on GitHub as interactive notebook cards with syntax highlighting, cell-level diffs, and side-by-side comparisons.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": [
+    "https://github.com/*"
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*"],
+      "js": ["lib/marked.min.js", "content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

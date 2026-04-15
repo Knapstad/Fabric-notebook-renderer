@@ -1,0 +1,789 @@
+/* ==========================================================================
+   Fabric Notebook Renderer — GitHub Chrome Extension
+   ========================================================================== */
+
+.fabric-notebook {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial,
+    sans-serif;
+  padding: 16px;
+  padding-top: 4px;
+  background: var(--bgColor-default, var(--color-canvas-default, #ffffff));
+  /* Offset for GitHub's sticky file header so the notebook header isn't hidden */
+  scroll-margin-top: 60px;
+}
+
+/* --------------------------------------------------------------------------
+   Header
+   -------------------------------------------------------------------------- */
+
+.fabric-notebook-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  margin-top: 46px; /* Clear GitHub's sticky file header */
+  border-radius: 8px;
+  background: var(--bgColor-muted, var(--color-canvas-subtle, #f6f8fa));
+  border: 1px solid var(--borderColor-default, var(--color-border-default, #d0d7de));
+}
+
+.fabric-notebook-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--fgColor-default, var(--color-fg-default, #1f2328));
+}
+
+.fabric-notebook-badges {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+.fabric-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--bgColor-accent-muted, var(--color-accent-subtle, #ddf4ff));
+  color: var(--fgColor-accent, var(--color-accent-fg, #0969da));
+}
+
+.fabric-badge-lakehouse {
+  background: var(--bgColor-success-muted, var(--color-success-subtle, #dafbe1));
+  color: var(--fgColor-success, var(--color-success-fg, #1a7f37));
+}
+
+.fabric-toggle-raw {
+  margin-left: auto;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--borderColor-default, var(--color-border-default, #d0d7de));
+  background: var(--bgColor-default, var(--color-canvas-default, #ffffff));
+  color: var(--fgColor-default, var(--color-fg-default, #1f2328));
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.fabric-toggle-raw:hover {
+  background: var(--bgColor-muted, var(--color-canvas-subtle, #f6f8fa));
+}
+
+/* --------------------------------------------------------------------------
+   Cells — shared
+   -------------------------------------------------------------------------- */
+
+.fabric-cell {
+  margin-bottom: 8px;
+  border: 1px solid var(--borderColor-default, var(--color-border-default, #d0d7de));
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bgColor-default, var(--color-canvas-default, #ffffff));
+}
+
+.fabric-cell-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--bgColor-muted, var(--color-canvas-subtle, #f6f8fa));
+  border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted, #d8dee4));
+  font-size: 12px;
+}
+
+.fabric-cell-index {
+  color: var(--fgColor-muted, var(--color-fg-muted, #656d76));
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace;
+  font-size: 11px;
+  min-width: 28px;
+}
+
+.fabric-cell-type {
+  font-weight: 600;
+  color: var(--fgColor-muted, var(--color-fg-muted, #656d76));
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 10px;
+}
+
+.fabric-cell-body {
+  padding: 12px 16px;
+}
+
+/* --------------------------------------------------------------------------
+   Markdown cells
+   -------------------------------------------------------------------------- */
+
+.fabric-cell-markdown .fabric-cell-header {
+  background: var(--bgColor-default, var(--color-canvas-default, #ffffff));
+  border-bottom-color: transparent;
+}
+
+.fabric-cell-markdown .fabric-cell-body {
+  padding: 4px 16px 12px;
+}
+
+.fabric-cell-markdown .fabric-cell-body h1 {
+  font-size: 1.6em;
+  font-weight: 600;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted, #d8dee4));
+  margin: 0 0 12px;
+}
+
+.fabric-cell-markdown .fabric-cell-body h2 {
+  font-size: 1.3em;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.fabric-cell-markdown .fabric-cell-body h3 {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.fabric-cell-markdown .fabric-cell-body p {
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.fabric-cell-markdown .fabric-cell-body ul,
+.fabric-cell-markdown .fabric-cell-body ol {
+  padding-left: 24px;
+  margin: 0 0 8px;
+}
+
+.fabric-cell-markdown .fabric-cell-body li {
+  margin-bottom: 4px;
+}
+
+.fabric-cell-markdown .fabric-cell-body code {
+  background: var(--bgColor-muted, var(--color-canvas-subtle, #f6f8fa));
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.fabric-cell-markdown .fabric-cell-body strong {
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Code cells & code block with line numbers
+   -------------------------------------------------------------------------- */
+
+.fabric-cell-code .fabric-cell-body {
+  padding: 0;
+}
+
+/* Language-specific header colors */
+.fabric-cell-code .fabric-cell-type {
+  color: var(--fgColor-accent, var(--color-accent-fg, #0969da));
+}
+
+/* Code block table with line numbers */
+.fabric-code-block {
+  overflow-x: auto;
+  background: var(--bgColor-muted, var(--color-canvas-subtle, #f6f8fa));
+}
+
+.fabric-code-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.fabric-code-row {
+  border: none;
+}
+
+.fabric-line-num {
+  padding: 0 8px;
+  text-align: right;
+  color: var(--fgColor-muted, var(--color-fg-muted, #656d76));
+  user-select: none;
+  white-space: nowrap;
+  vertical-align: top;
+  width: 1px;
+  min-width: 36px;
+  font-size: 12px;
+  border-right: 1px solid var(--borderColor-muted, var(--color-border-muted, #d8dee4));
+}
+
+.fabric-diff-marker {
+  padding: 0 4px;
+  text-align: center;
+  color: var(--fgColor-muted, var(--color-fg-muted, #656d76));
+  user-select: none;
+  white-space: nowrap;
+  vertical-align: top;
+  width: 1px;
+  font-size: 12px;
+}
+
+.fabric-line-code {
+  padding: 0 12px;
+  white-space: pre;
+  color: var(--fgColor-default, var(--color-fg-default, #1f2328));
+}
+
+/* Collapse/expand for long code cells */
+.fabric-code-collapsible {
+  position: relative;
+}
+
+.fabric-code-collapsed {
+  max-height: 400px;
+  overflow: hidden;
+}
+
+.fabric-code-collapsed::after {
+  content: '';
+  position: absolute;
+  bottom: 28px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--bgColor-muted, var(--color-canvas-subtle, #f6f8fa))
+  );
+  pointer-events: none;
+}
+
+.fabric-code-expand-btn {
+  display: block;
+  width: 100%;
+  padding: 4px 12px;
+  border: none;
+  border-top: 1px solid var(--borderColor-muted, var(--color-border-muted, #d8dee4));
+  background: var(--bgColor-muted, var(--color-canvas-subtle, #f6f8fa));
+  color: var(--fgColor-accent, var(--color-accent-fg, #0969da));
+  font-size: 12px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.fabric-code-expand-btn:hover {
+  background: var(--bgColor-default, var(--color-canvas-default, #ffffff));
+}
+
+/* Parameters cell */
+.fabric-cell-parameters .fabric-cell-header {
+  background: var(--bgColor-attention-muted, var(--color-attention-subtle, #fff8c5));
+}
+
+.fabric-cell-parameters .fabric-cell-type {
+  color: var(--fgColor-attention, var(--color-attention-fg, #9a6700));
+}
+
+/* --------------------------------------------------------------------------
+   Run cells
+   -------------------------------------------------------------------------- */
+
+.fabric-cell-run {
+  border-style: dashed;
+}
+
+.fabric-cell-run .fabric-cell-header {
+  background: var(--bgColor-done-muted, var(--color-done-subtle, #fbefff));
+}
+
+.fabric-cell-run .fabric-cell-type {
+  color: var(--fgColor-done, var(--color-done-fg, #8250df));
+}
+
+.fabric-run-ref {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.fabric-run-icon {
+  color: var(--fgColor-done, var(--color-done-fg, #8250df));
+  font-size: 12px;
+}
+
+.fabric-run-ref code {
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace;
+  background: var(--bgColor-muted, var(--color-canvas-subtle, #f6f8fa));
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+/* --------------------------------------------------------------------------
+   PR Diff view — Fabric-style side-by-side cell diff
+   -------------------------------------------------------------------------- */
+
+.fabric-diff-notebook {
+  padding: 12px;
+}
+
+.fabric-diff-notebook .fabric-notebook-header {
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+/* Toggle button in GitHub's native diff file header */
+.fabric-diff-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--borderColor-default, var(--color-border-default, #d0d7de));
+  background: var(--bgColor-default, var(--color-canvas-default, #ffffff));
+  color: var(--fgColor-muted, var(--color-fg-muted, #656d76));
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 20px;
+  vertical-align: middle;
+}
+
+.fabric-diff-toggle:hover {
+  background: var(--bgColor-muted, var(--color-canvas-subtle, #f6f8fa));
+  color: var(--fgColor-default, var(--color-fg-default, #1f2328));
+}
+
+.fabric-diff-toggle-active {
+  background: var(--bgColor-accent-muted, var(--color-accent-subtle, #ddf4ff));
+  border-color: var(--borderColor-accent-muted, var(--color-accent-muted, #54aeff66));
+  color: var(--fgColor-accent, var(--color-accent-fg, #0969da));
+}
+
+.fabric-diff-toggle-active:hover {
+  background: var(--bgColor-accent-muted, var(--color-accent-subtle, #b6d7ff));
+}
+
+.fabric-diff-toggle-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Diff cell cards */
+.fabric-diff-cell {
+  margin-bottom: 8px;
+}
+
+.fabric-diff-cell-unchanged {
+  opacity: 0.75;
+}
+
+.fabric-diff-cell-unchanged:hover {
+  opacity: 1;
+}
+
+.fabric-diff-cell-added .fabric-cell-header {
+  background: var(--bgColor-success-muted, var(--color-success-subtle, #dafbe1));
+  border-bottom-color: var(--borderColor-success-muted, #4ac26b44);
+}
+
+.fabric-diff-cell-removed .fabric-cell-header {
+  background: var(--bgColor-danger-muted, var(--color-danger-subtle, #ffebe9));
+  border-bottom-color: var(--borderColor-danger-muted, #ff818244);
+}
+
+.fabric-diff-cell-modified .fabric-cell-header {
+  background: var(--bgColor-attention-muted, var(--color-attention-subtle, #fff8c5));
+  border-bottom-color: var(--borderColor-attention-muted, #d4a72c44);
+}
+
+.fabric-diff-cell-meta-changed .fabric-cell-header {
+  background: var(--bgColor-accent-muted, var(--color-accent-subtle, #ddf4ff));
+  border-bottom-color: var(--borderColor-accent-muted, #54aeff44);
+}
+
+/* Status badges */
+.fabric-diff-status {
+  margin-left: auto;
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fabric-diff-status-unchanged {
+  background: var(--bgColor-muted, var(--color-canvas-subtle, #f6f8fa));
+  color: var(--fgColor-muted, var(--color-fg-muted, #656d76));
+}
+
+.fabric-diff-status-modified {
+  background: var(--bgColor-attention-muted, var(--color-attention-subtle, #fff8c5));
+  color: var(--fgColor-attention, var(--color-attention-fg, #9a6700));
+}
+
+.fabric-diff-status-added {
+  background: var(--bgColor-success-muted, var(--color-success-subtle, #dafbe1));
+  color: var(--fgColor-success, var(--color-success-fg, #1a7f37));
+}
+
+.fabric-diff-status-removed {
+  background: var(--bgColor-danger-muted, var(--color-danger-subtle, #ffebe9));
+  color: var(--fgColor-danger, var(--color-danger-fg, #d1242f));
+}
+
+.fabric-diff-status-meta-changed {
+  background: var(--bgColor-accent-muted, var(--color-accent-subtle, #ddf4ff));
+  color: var(--fgColor-accent, var(--color-accent-fg, #0969da));
+}
+
+/* Side-by-side diff table */
+.fabric-diff-side-by-side {
+  overflow-x: auto;
+  background: var(--bgColor-muted, var(--color-canvas-subtle, #f6f8fa));
+}
+
+.fabric-diff-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.fabric-diff-table .fabric-diff-num-left,
+.fabric-diff-table .fabric-diff-num-right {
+  width: 42px;
+  min-width: 42px;
+  max-width: 42px;
+}
+
+.fabric-diff-table .fabric-diff-code-left,
+.fabric-diff-table .fabric-diff-code-right {
+  width: calc(50% - 24px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fabric-diff-gutter {
+  width: 4px;
+  min-width: 4px;
+  max-width: 4px;
+  background: var(--borderColor-muted, var(--color-border-muted, #d8dee4));
+  padding: 0 !important;
+}
+
+/* Diff line colors — semi-transparent tints that work on both light and dark code backgrounds */
+.fabric-diff-code-remove,
+.fabric-diff-num-remove {
+  background: rgba(248, 81, 73, 0.15) !important;
+}
+
+.fabric-diff-code-add,
+.fabric-diff-num-add {
+  background: rgba(63, 185, 80, 0.15) !important;
+}
+
+/* Empty cells (no corresponding line on that side) */
+.fabric-diff-empty {
+  background: rgba(128, 128, 128, 0.08) !important;
+}
+
+/* Expand row for collapsed unchanged lines in diffs */
+.fabric-diff-expand-row {
+  cursor: pointer;
+  position: relative;
+}
+
+.fabric-diff-expand-row td {
+  padding: 0 !important;
+  height: 26px;
+  background: rgba(128, 128, 128, 0.06);
+  border-top: 1px solid var(--borderColor-muted, var(--color-border-muted, #d8dee422));
+  border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted, #d8dee422));
+}
+
+.fabric-diff-expand-label {
+  /* Overlay centered across the full row width */
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 26px;
+  color: var(--fgColor-accent, var(--color-accent-fg, #0969da));
+  user-select: none;
+  pointer-events: none;
+}
+
+.fabric-diff-expand-row:hover td {
+  background: rgba(128, 128, 128, 0.12);
+}
+
+.fabric-diff-expand-row:hover .fabric-diff-expand-label {
+  color: var(--fgColor-default, var(--color-fg-default, #1f2328));
+}
+
+/* Single-side diff blocks (entirely added or removed cells) */
+.fabric-diff-single-side .fabric-diff-line-add {
+  background: rgba(63, 185, 80, 0.15);
+}
+
+.fabric-diff-single-side .fabric-diff-line-add .fabric-diff-marker {
+  color: var(--fgColor-success, var(--color-success-fg, #1a7f37));
+}
+
+.fabric-diff-single-side .fabric-diff-line-remove {
+  background: rgba(248, 81, 73, 0.15);
+}
+
+.fabric-diff-single-side .fabric-diff-line-remove .fabric-diff-marker {
+  color: var(--fgColor-danger, var(--color-danger-fg, #d1242f));
+}
+
+/* Added/removed whole-block indicators for markdown */
+.fabric-diff-added-block {
+  background: rgba(63, 185, 80, 0.15);
+  border-left: 3px solid var(--fgColor-success, var(--color-success-fg, #1a7f37));
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.fabric-diff-removed-block {
+  background: rgba(248, 81, 73, 0.15);
+  border-left: 3px solid var(--fgColor-danger, var(--color-danger-fg, #d1242f));
+  border-radius: 4px;
+  padding: 8px 12px;
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+/* Collapsible metadata diff */
+.fabric-diff-cell-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--borderColor-default, var(--color-border-default, #d0d7de));
+  background: var(--bgColor-accent-muted, var(--color-accent-subtle, #ddf4ff));
+}
+
+.fabric-meta-arrow {
+  font-size: 10px;
+  color: var(--fgColor-muted, var(--color-fg-muted, #656d76));
+  transition: transform 0.15s;
+}
+
+.fabric-meta-diff-body {
+  padding: 0 !important;
+}
+
+.fabric-diff-cell-meta-changed > .fabric-cell-body > .fabric-cell {
+  border: none;
+  margin-bottom: 0;
+}
+
+/* Diff cell collapse/expand toggle */
+.fabric-diff-collapse-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--fgColor-muted, var(--color-fg-muted, #656d76));
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.fabric-diff-collapse-btn:hover {
+  background: var(--bgColor-neutral-muted, var(--color-neutral-subtle, #eaeef2));
+  color: var(--fgColor-default, var(--color-fg-default, #1f2328));
+}
+
+.fabric-diff-cell-collapsed {
+  opacity: 0.75;
+}
+
+.fabric-diff-cell-collapsed .fabric-cell-header {
+  border-bottom: none;
+}
+
+/* Diff cell body: no padding for code views so tables span full width */
+.fabric-diff-cell.fabric-diff-cell-modified .fabric-cell-body,
+.fabric-diff-cell.fabric-diff-cell-added .fabric-cell-body,
+.fabric-diff-cell.fabric-diff-cell-removed .fabric-cell-body {
+  padding: 0;
+}
+
+/* But markdown blocks inside diff cells need padding */
+.fabric-diff-cell .fabric-markdown-rendered {
+  padding: 12px 16px;
+}
+
+/* Ensure diff-cell code blocks have no extra padding */
+.fabric-diff-cell .fabric-diff-side-by-side,
+.fabric-diff-cell .fabric-diff-single-side {
+  border-radius: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Syntax highlighting — Python & SQL
+   Uses GitHub's prettylights CSS variables with light-theme fallbacks.
+   Dark-theme overrides use [data-color-mode="dark"] on <html>.
+   -------------------------------------------------------------------------- */
+
+.fabric-hl-keyword {
+  color: var(--prettylights-syntax-keyword, #cf222e);
+}
+
+.fabric-hl-builtin {
+  color: var(--prettylights-syntax-entity, #8250df);
+}
+
+.fabric-hl-string {
+  color: var(--prettylights-syntax-string, #0a3069);
+}
+
+.fabric-hl-number {
+  color: var(--prettylights-syntax-constant, #0550ae);
+}
+
+.fabric-hl-comment {
+  color: var(--prettylights-syntax-comment, #6e7781);
+  font-style: italic;
+}
+
+.fabric-hl-operator {
+  color: var(--prettylights-syntax-keyword, #cf222e);
+}
+
+.fabric-hl-function {
+  color: var(--prettylights-syntax-entity, #8250df);
+}
+
+.fabric-hl-decorator {
+  color: var(--prettylights-syntax-entity-tag, #116329);
+}
+
+/* SQL-specific */
+.fabric-hl-sql-keyword {
+  color: var(--prettylights-syntax-keyword, #cf222e);
+  text-transform: uppercase;
+}
+
+.fabric-hl-sql-function {
+  color: var(--prettylights-syntax-entity, #8250df);
+}
+
+.fabric-hl-sql-type {
+  color: var(--prettylights-syntax-variable, #953800);
+}
+
+/* --------------------------------------------------------------------------
+   Dark theme overrides — scoped to GitHub's dark mode attribute.
+   Applied when GitHub sets data-color-mode="dark" on <html>, or when the
+   user's OS is dark and GitHub hasn't set a mode (auto-detect fallback).
+   -------------------------------------------------------------------------- */
+
+[data-color-mode="dark"] .fabric-hl-keyword,
+[data-color-mode="dark"] .fabric-hl-operator {
+  color: var(--prettylights-syntax-keyword, #ff7b72);
+}
+
+[data-color-mode="dark"] .fabric-hl-builtin,
+[data-color-mode="dark"] .fabric-hl-function {
+  color: var(--prettylights-syntax-entity, #d2a8ff);
+}
+
+[data-color-mode="dark"] .fabric-hl-string {
+  color: var(--prettylights-syntax-string, #a5d6ff);
+}
+
+[data-color-mode="dark"] .fabric-hl-number {
+  color: var(--prettylights-syntax-constant, #79c0ff);
+}
+
+[data-color-mode="dark"] .fabric-hl-comment {
+  color: var(--prettylights-syntax-comment, #8b949e);
+}
+
+[data-color-mode="dark"] .fabric-hl-decorator {
+  color: var(--prettylights-syntax-entity-tag, #7ee787);
+}
+
+[data-color-mode="dark"] .fabric-hl-sql-keyword {
+  color: var(--prettylights-syntax-keyword, #ff7b72);
+}
+
+[data-color-mode="dark"] .fabric-hl-sql-function {
+  color: var(--prettylights-syntax-entity, #d2a8ff);
+}
+
+[data-color-mode="dark"] .fabric-hl-sql-type {
+  color: var(--prettylights-syntax-variable, #ffa657);
+}
+
+/* Diff marker colors — theme-aware */
+[data-color-mode="dark"] .fabric-diff-single-side .fabric-diff-line-add .fabric-diff-marker {
+  color: #3fb950;
+}
+
+[data-color-mode="dark"] .fabric-diff-single-side .fabric-diff-line-remove .fabric-diff-marker {
+  color: #f85149;
+}
+
+[data-color-mode="dark"] .fabric-diff-added-block {
+  border-left-color: #3fb950;
+}
+
+[data-color-mode="dark"] .fabric-diff-removed-block {
+  border-left-color: #f85149;
+}
+
+/* Auto-detect fallback: if GitHub hasn't set data-color-mode but OS is dark */
+@media (prefers-color-scheme: dark) {
+  html:not([data-color-mode]) .fabric-hl-keyword,
+  html:not([data-color-mode]) .fabric-hl-operator {
+    color: var(--prettylights-syntax-keyword, #ff7b72);
+  }
+
+  html:not([data-color-mode]) .fabric-hl-builtin,
+  html:not([data-color-mode]) .fabric-hl-function {
+    color: var(--prettylights-syntax-entity, #d2a8ff);
+  }
+
+  html:not([data-color-mode]) .fabric-hl-string {
+    color: var(--prettylights-syntax-string, #a5d6ff);
+  }
+
+  html:not([data-color-mode]) .fabric-hl-number {
+    color: var(--prettylights-syntax-constant, #79c0ff);
+  }
+
+  html:not([data-color-mode]) .fabric-hl-comment {
+    color: var(--prettylights-syntax-comment, #8b949e);
+  }
+
+  html:not([data-color-mode]) .fabric-hl-decorator {
+    color: var(--prettylights-syntax-entity-tag, #7ee787);
+  }
+
+  html:not([data-color-mode]) .fabric-hl-sql-keyword {
+    color: var(--prettylights-syntax-keyword, #ff7b72);
+  }
+
+  html:not([data-color-mode]) .fabric-hl-sql-function {
+    color: var(--prettylights-syntax-entity, #d2a8ff);
+  }
+
+  html:not([data-color-mode]) .fabric-hl-sql-type {
+    color: var(--prettylights-syntax-variable, #ffa657);
+  }
+}

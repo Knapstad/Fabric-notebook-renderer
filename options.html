@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fabric Notebook Renderer — Options</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-subtle: #f6f8fa;
+      --fg: #1f2328;
+      --fg-muted: #656d76;
+      --border: #d0d7de;
+      --accent: #742774;
+      --accent-light: #f3e8f3;
+      --success: #1a7f37;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0d1117;
+        --bg-subtle: #161b22;
+        --fg: #e6edf3;
+        --fg-muted: #8b949e;
+        --border: #30363d;
+        --accent: #a855c8;
+        --accent-light: #2d1a33;
+        --success: #3fb950;
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      min-width: 420px;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header img {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .header p {
+      font-size: 13px;
+      color: var(--fg-muted);
+      margin-top: 2px;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--fg-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .setting {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .setting-info {
+      flex: 1;
+      margin-right: 16px;
+    }
+
+    .setting-label {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .setting-desc {
+      font-size: 12px;
+      color: var(--fg-muted);
+      margin-top: 2px;
+    }
+
+    /* Toggle switch */
+    .toggle {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 11px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      left: 3px;
+      top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+
+    .toggle input:checked + .toggle-slider {
+      background: var(--accent);
+    }
+
+    .toggle input:checked + .toggle-slider::before {
+      transform: translateX(18px);
+    }
+
+    /* Number input */
+    .num-input {
+      width: 60px;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--fg);
+      font-size: 14px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .num-input:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+    }
+
+    /* Select */
+    .select-input {
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--fg);
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    /* Save status */
+    .save-status {
+      font-size: 12px;
+      color: var(--success);
+      opacity: 0;
+      transition: opacity 0.3s;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    .save-status.visible {
+      opacity: 1;
+    }
+
+    .footer {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--fg-muted);
+      text-align: center;
+    }
+
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="icons/icon48.png" alt="Fabric Notebook Renderer">
+    <div>
+      <h1>Fabric Notebook Renderer</h1>
+      <p>Renders Microsoft Fabric notebook files on GitHub</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Diff View</div>
+
+    <div class="setting">
+      <div class="setting-info">
+        <div class="setting-label">Default view mode</div>
+        <div class="setting-desc">Which view to show by default on PR diff pages</div>
+      </div>
+      <select id="defaultView" class="select-input">
+        <option value="notebook">Notebook</option>
+        <option value="raw">Raw diff</option>
+      </select>
+    </div>
+
+    <div class="setting">
+      <div class="setting-info">
+        <div class="setting-label">Context lines</div>
+        <div class="setting-desc">Number of unchanged lines shown around each change</div>
+      </div>
+      <input type="number" id="contextLines" class="num-input" min="1" max="20" value="3">
+    </div>
+
+    <div class="setting">
+      <div class="setting-info">
+        <div class="setting-label">Collapse unchanged cells</div>
+        <div class="setting-desc">Automatically collapse cells with no changes</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="collapseUnchanged" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Code Display</div>
+
+    <div class="setting">
+      <div class="setting-info">
+        <div class="setting-label">Syntax highlighting</div>
+        <div class="setting-desc">Highlight Python and SQL keywords in code cells</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="syntaxHighlight" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting">
+      <div class="setting-info">
+        <div class="setting-label">Collapse long code cells</div>
+        <div class="setting-desc">Auto-collapse code cells longer than 30 lines (blob view)</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="collapseLongCode" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="save-status" id="saveStatus">Settings saved</div>
+
+  <div class="footer">
+    Fabric Notebook Renderer v1.0.0
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
