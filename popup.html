@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fabric Notebook Renderer</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-subtle: #f6f8fa;
+      --fg: #1f2328;
+      --fg-muted: #656d76;
+      --border: #d0d7de;
+      --accent: #742774;
+      --accent-light: #f3e8f3;
+      --success: #1a7f37;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0d1117;
+        --bg-subtle: #161b22;
+        --fg: #e6edf3;
+        --fg-muted: #8b949e;
+        --border: #30363d;
+        --accent: #a855c8;
+        --accent-light: #2d1a33;
+        --success: #3fb950;
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      width: 360px;
+      padding: 16px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+    }
+
+    .header h1 {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .header p {
+      font-size: 11px;
+      color: var(--fg-muted);
+      margin-top: 1px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--fg-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      margin-top: 12px;
+    }
+
+    .section-title:first-of-type { margin-top: 0; }
+
+    .setting {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+
+    .setting-info { flex: 1; margin-right: 12px; }
+
+    .setting-label {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .setting-desc {
+      font-size: 11px;
+      color: var(--fg-muted);
+      margin-top: 1px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      left: 3px;
+      top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+
+    .toggle input:checked + .toggle-slider { background: var(--accent); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+    .num-input {
+      width: 52px;
+      padding: 3px 6px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: var(--bg);
+      color: var(--fg);
+      font-size: 13px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .num-input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+    .select-input {
+      padding: 3px 6px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: var(--bg);
+      color: var(--fg);
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .save-status {
+      font-size: 11px;
+      color: var(--success);
+      opacity: 0;
+      transition: opacity 0.3s;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    .save-status.visible { opacity: 1; }
+
+    .footer {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--fg-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="icons/icon48.png" alt="Fabric Notebook Renderer">
+    <div>
+      <h1>Fabric Notebook Renderer</h1>
+      <p>Notebook rendering for GitHub</p>
+    </div>
+  </div>
+
+  <div class="section-title">Diff View</div>
+
+  <div class="setting">
+    <div class="setting-info">
+      <div class="setting-label">Default view</div>
+      <div class="setting-desc">Initial view on PR diff pages</div>
+    </div>
+    <select id="defaultView" class="select-input">
+      <option value="notebook">Notebook</option>
+      <option value="raw">Raw diff</option>
+    </select>
+  </div>
+
+  <div class="setting">
+    <div class="setting-info">
+      <div class="setting-label">Context lines</div>
+      <div class="setting-desc">Unchanged lines around changes</div>
+    </div>
+    <input type="number" id="contextLines" class="num-input" min="1" max="20" value="3">
+  </div>
+
+  <div class="setting">
+    <div class="setting-info">
+      <div class="setting-label">Collapse unchanged cells</div>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="collapseUnchanged" checked>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
+  <div class="section-title">Code Display</div>
+
+  <div class="setting">
+    <div class="setting-info">
+      <div class="setting-label">Syntax highlighting</div>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="syntaxHighlight" checked>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
+  <div class="setting">
+    <div class="setting-info">
+      <div class="setting-label">Collapse long code cells</div>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="collapseLongCode" checked>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
+  <div class="save-status" id="saveStatus">Settings saved</div>
+
+  <div class="footer">v1.1.0</div>
+
+  <script src="options.js"></script>
+</body>
+</html>
