@@ -411,8 +411,8 @@
     const opts = options || {};
     const lines = content.split('\n');
     const startLine = opts.startLine || 1;
-    const collapsible = opts.collapsible !== false && _settings.collapseLongCode && lines.length > 20;
-    const initiallyCollapsed = opts.collapsed !== false && _settings.collapseLongCode && lines.length > 30;
+    const collapsible = false;
+    const initiallyCollapsed = false;
 
     const container = document.createElement('div');
     container.className = 'fabric-code-block';
